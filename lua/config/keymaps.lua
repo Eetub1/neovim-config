@@ -1,8 +1,8 @@
 local map = vim.keymap.set
 
 map("n", "j", "h", { desc = "Move left" })
-map("n", "k", "k", { desc = "Move up" })
-map("n", "l", "j", { desc = "Move down" })
+map("n", "l", "k", { desc = "Move up" })
+map("n", "k", "j", { desc = "Move down" })
 map("n", "ö", "l", { desc = "Move right" })
 
 map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
