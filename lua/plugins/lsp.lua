@@ -33,7 +33,14 @@ return {
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "pyright" },
+        ensure_installed = { 
+            "lua_ls",
+            "pyright",
+            "ts_ls",
+            "html",
+            "cssls",
+            "emmet_ls"
+        },
         automatic_enable = true,   -- enables installed servers for you
       })
 
@@ -53,6 +60,31 @@ return {
             },
           },
         },
+      })
+
+      -- TypeScript / JavaScript
+      vim.lsp.config("ts_ls", {
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "literal",
+              includeInlayFunctionReturnTypeHints = true,
+            },
+          },
+        },
+      })
+
+      -- HTML
+      vim.lsp.config("html", {
+        filetypes = { "html", "templ" },
+      })
+
+      -- CSS (and friends)
+      vim.lsp.config("cssls", {})
+
+      -- Emmet: expand abbreviations in markup files
+      vim.lsp.config("emmet_ls", {
+        filetypes = { "html", "css", "scss", "less", "javascriptreact", "typescriptreact" },
       })
 
       vim.api.nvim_create_autocmd("LspAttach", {
