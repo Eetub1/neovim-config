@@ -33,13 +33,14 @@ return {
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       require("mason-lspconfig").setup({
-        ensure_installed = { 
-            "lua_ls",
-            "pyright",
-            "ts_ls",
-            "html",
-            "cssls",
-            "emmet_ls"
+        ensure_installed = {
+          "lua_ls",
+          "pyright",
+          "ts_ls",
+          "html",
+          "cssls",
+          "emmet_ls",
+          "clangd",     -- C and C++
         },
         automatic_enable = true,   -- enables installed servers for you
       })
@@ -62,15 +63,17 @@ return {
         },
       })
 
-      -- TypeScript / JavaScript
+      -- TypeScript / JavaScript (same inlay hints for both)
+      local ts_hints = {
+        inlayHints = {
+          includeInlayParameterNameHints = "literal",
+          includeInlayFunctionReturnTypeHints = true,
+        },
+      }
       vim.lsp.config("ts_ls", {
         settings = {
-          typescript = {
-            inlayHints = {
-              includeInlayParameterNameHints = "literal",
-              includeInlayFunctionReturnTypeHints = true,
-            },
-          },
+          typescript = ts_hints,
+          javascript = ts_hints,
         },
       })
 
@@ -87,16 +90,43 @@ return {
         filetypes = { "html", "css", "scss", "less", "javascriptreact", "typescriptreact" },
       })
 
+      -- C / C++ (clangd, told to use gcc's headers and settings)
+      vim.lsp.config("clangd", {
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--clang-tidy",
+          "--header-insertion=iwyu",
+          "--completion-style=detailed",
+          "--query-driver=/usr/bin/gcc*,/usr/bin/g++*,/usr/bin/cc,/usr/bin/c++",
+        },
+      })
+
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(ev)
           local map = vim.keymap.set
           local o = { buffer = ev.buf }
+
+          -- Built-in since Neovim 0.11, no need to map:
+          --   grr = references   grn = rename   gra = code action
+          --   gri = implementation   K = hover
           map("n", "gd", vim.lsp.buf.definition,  o)
           map("n", "K",  vim.lsp.buf.hover,       o)
-          map("n", "gr", vim.lsp.buf.references,  o)
           map("n", "<leader>rn", vim.lsp.buf.rename,       o)
           map("n", "<leader>ca", vim.lsp.buf.code_action,  o)
           map("n", "<leader>d",  vim.diagnostic.open_float, o)
+
+          -- Inlay hints: on by default where the server supports them
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          if client and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+            map("n", "<leader>ih", function()
+              vim.lsp.inlay_hint.enable(
+                not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
+                { bufnr = ev.buf }
+              )
+            end, vim.tbl_extend("force", o, { desc = "Toggle inlay hints" }))
+          end
         end,
       })
     end,
