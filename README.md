@@ -5,6 +5,7 @@
 - rust/cargo to run the command "cargo install bob-nvim"
 - setup some bob PATH??
 - npm install -g tree-sitter-cli
+- install JetBrainsMono font for working icons (or some other if you prefer)
 
 Make sure everything works with :checkhealth
 
