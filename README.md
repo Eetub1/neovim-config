@@ -8,11 +8,10 @@
 
 Make sure everything works with :checkhealth
 
+Neovim's C/C++ language server is clangd, which is clang-based. This config
+makes clangd use g++'s headers and settings, so you can use `bits/stdc++.h`.
 
-Neovim uses clang language server, so this makes clang use g++'s headers and settings. With this you can use bits/stdc++.h
-
-
-
+```bash
 mkdir -p ~/.config/clangd
 cat > ~/.config/clangd/config.yaml << 'EOF'
 # C++ files: behave like g++ -std=c++17
@@ -28,3 +27,4 @@ If:
 CompileFlags:
   Compiler: /usr/bin/gcc
 EOF
+```
